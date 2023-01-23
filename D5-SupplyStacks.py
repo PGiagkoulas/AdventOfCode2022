@@ -29,10 +29,12 @@ if __name__ == '__main__':
     process_actions = [s.strip().replace('move ', '').replace('from ', '').replace('to ', '').split(' ')
                        for s in rearrangement_process]
 
-    cargo_by_stack = move_cargo_lifo(cargo_by_stack, process_actions)
-    top_of_cargo = ''.join(c[-1] for c in cargo_by_stack).replace('[', '').replace(']', '')
-    print(f'Top crates on each stack using lifo: {top_of_cargo}')
+    # cargo_by_stack_lifo = cargo_by_stack
+    # cargo_by_stack_lifo = move_cargo_lifo(cargo_by_stack_lifo, process_actions)
+    # top_of_cargo = ''.join(c[-1] for c in cargo_by_stack_lifo).replace('[', '').replace(']', '')
+    # print(f'Top crates on each stack using lifo: {top_of_cargo}')
 
-    cargo_by_stack = move_cargo_stack(cargo_by_stack, process_actions)
-    top_of_cargo = ''.join(c[-1] for c in cargo_by_stack).replace('[', '').replace(']', '')
+    cargo_by_stack_stacked = cargo_by_stack
+    cargo_by_stack_stacked = move_cargo_stack(cargo_by_stack_stacked, process_actions)
+    top_of_cargo = ''.join(c[-1] for c in cargo_by_stack_stacked).replace('[', '').replace(']', '')
     print(f'Top crates on each stack using stacks: {top_of_cargo}')
