@@ -1,8 +1,9 @@
-def get_elf_assignments(pair: str) -> tuple[int, int]:
-    elf1, elf2 = pair.split(',')
-    elf1 = (int(elf1.split('-')[0]), int(elf1.split('-')[1]))
-    elf2 = (int(elf2.split('-')[0]), int(elf2.split('-')[1]))
-    return elf1, elf2
+def get_elf_assignments(p: str) -> tuple[tuple[int, int], tuple[int, int]]:
+    e1, e2 = p.split(',')
+    e1 = (int(e1.split('-')[0]), int(e1.split('-')[1]))
+    e2 = (int(e2.split('-')[0]), int(e2.split('-')[1]))
+    return e1, e2
+
 
 if __name__ == '__main__':
     with open('d4-input.txt') as f:
