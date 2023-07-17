@@ -13,6 +13,8 @@ DY_DY_VECTOR_MOVE_MAP = {v: k for k, v in MOVES.items()}
 
 HOR_VERT_MOVES = ['U', 'D', 'R', 'L']
 
+ALL_BOARD_POSITIONS = [(j, i) for i in range(13, -13, -1) for j in range(-13, 13, 1)]
+
 
 def initialize_parameters():
     return (0, 0), (0, 0), (0, 0), 0, [(0, 0)], [(0, 0)], []
@@ -37,11 +39,19 @@ def calc_tail_step_update(step_history: list[str], step_dir: str) -> tuple[bool,
         return True, step_dir + ' 1'
 
 
+def draw_positions_on_board(positions_to_draw: list[tuple[int, int]]) -> None:
+    print("=" * 20)
+    board = ['#' if p in positions_to_draw else '.' for p in ALL_BOARD_POSITIONS]
+    for row in range(0, len(ALL_BOARD_POSITIONS), 26):
+        print(board[row:row + 26])
+
+
 if __name__ == '__main__':
     with open('d9-test-input.txt') as f:
         steps = f.readlines()
     steps = [s.strip() for s in steps]
     print(steps)
+    knot_positions = [(0, 0)] * 10
     # Assume the head and the tail both start at the same position, overlapping.
     # Rope with 10 knots
     # n moves, check distance and possibly update n+1
@@ -81,15 +91,13 @@ if __name__ == '__main__':
                     tail_pos = (tail_pos[0] + MOVES[tail_step_dir][0], tail_pos[1] + MOVES[tail_step_dir][1])
                     print(f"  - New tail position: {tail_pos} after performing step {tail_step_dir}")
                     all_tail_pos.append(tail_pos)
-        steps = all_tail_steps
+        steps = all_tail_steps  # steps for next head, based on steps of tail
+        knot_positions[i-1] = head_pos  # positions of knots after finished moving
 
         num_unique_head_pos = len(set(all_head_pos))
         num_unique_tail_pos = len(set(all_tail_pos))
         print(f"[>] Head knot {i} visited {num_unique_head_pos} positions at least once")
-        print(f"[>] Tail knot {i+1} visited {num_unique_tail_pos} positions at least once")
-
-        all_board_positions = [(j,i) for i in range(13, -13, -1) for j in range(-13, 13, 1)]
-        print("=" * 20)
-        board = ['#' if p in set(all_tail_pos) else '.' for p in all_board_positions]
-        for row in range(0, len(all_board_positions), 26):
-            print(board[row:row+26])
+        print(f"[>] Tail knot {i+1} steps {all_tail_steps}")
+        draw_positions_on_board(list(set(all_tail_pos)))
+    draw_positions_on_board(knot_positions)
+    print()
