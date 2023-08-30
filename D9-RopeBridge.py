@@ -1,3 +1,5 @@
+import math
+
 MOVES = {
     'U': (0, 1)
     , 'D': (0, -1)
@@ -28,6 +30,25 @@ def calculate_dx_dy_vector(p1: tuple[int, int], p2: tuple[int, int]) -> tuple[in
     return (p1[0] - p2[0]), (p1[1] - p2[1])
 
 
+def calculate_dx_dy_distance(p1: tuple[int, int], p2: tuple[int, int]) -> float:
+    return math.sqrt(math.pow(p2[0] - p1[0], 2) + math.pow(p2[1] - p1[1], 2))
+
+
+def calculate_move_distances(p1: tuple[int, int], p2: tuple[int, int]) -> dict[str, float]:
+    return {m: calculate_dx_dy_distance((p1[0]+s[0], p1[1]+s[1]), p2) for m, s in MOVES.items()}
+
+
+def get_dict_key_min_value(d: dict) -> str:
+    min_dist = min(d.values())
+    min_dist_ind = list(d.values()).index(min_dist)
+    return list(d.keys())[min_dist_ind]
+
+
+def get_least_distance_move(p1: tuple[int, int], p2: tuple[int, int]) -> str:
+    moves_distances = calculate_move_distances(p1, p2)
+    return get_dict_key_min_value(moves_distances)
+
+
 def calc_tail_step_update(step_history: list[str], step_dir: str) -> tuple[bool, str]:
     if len(step_history) > 0:
         latest_step_dir, latest_step_dist = step_history[-1].split(' ')
@@ -39,19 +60,13 @@ def calc_tail_step_update(step_history: list[str], step_dir: str) -> tuple[bool,
         return True, step_dir + ' 1'
 
 
-def draw_positions_on_board(positions_to_draw: list[tuple[int, int]]) -> None:
-    print("=" * 20)
-    board = ['#' if p in positions_to_draw else '.' for p in ALL_BOARD_POSITIONS]
-    for row in range(0, len(ALL_BOARD_POSITIONS), 26):
-        print(board[row:row + 26])
-
-
 if __name__ == '__main__':
-    with open('d9-test-input.txt') as f:
+    with open('d9-input.txt') as f:
         steps = f.readlines()
     steps = [s.strip() for s in steps]
     print(steps)
     knot_positions = [(0, 0)] * 10
+    num_unique_tail_pos = 0
     # Assume the head and the tail both start at the same position, overlapping.
     # Rope with 10 knots
     # n moves, check distance and possibly update n+1
@@ -77,11 +92,7 @@ if __name__ == '__main__':
                 # 3. check distance to tail
                 if dist > 1:
                     # 3a. not adjacent -> calculate tail step
-                    if direction in HOR_VERT_MOVES:
-                        dx_dy_vector = calculate_dx_dy_vector(last_head_follow_pos, tail_pos)
-                        tail_step_dir = DY_DY_VECTOR_MOVE_MAP[dx_dy_vector]
-                    else:
-                        tail_step_dir = direction
+                    tail_step_dir = get_least_distance_move(tail_pos, head_pos)
                     new_step, step = calc_tail_step_update(all_tail_steps, tail_step_dir)
                     if new_step:
                         all_tail_steps.append(step)
@@ -98,6 +109,4 @@ if __name__ == '__main__':
         num_unique_tail_pos = len(set(all_tail_pos))
         print(f"[>] Head knot {i} visited {num_unique_head_pos} positions at least once")
         print(f"[>] Tail knot {i+1} steps {all_tail_steps}")
-        draw_positions_on_board(list(set(all_tail_pos)))
-    draw_positions_on_board(knot_positions)
-    print()
+    print(f"[>] Last tail knot visited {num_unique_tail_pos} unique positions")
